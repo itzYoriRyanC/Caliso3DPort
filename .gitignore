@@ -1,0 +1,39 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+*.local
+
+# 🔒 SECURITY BACKFILL: Protect Environment & Secret Files
+.env
+.env.local
+.env.*.local
+*.env
+.env.development
+.env.production
+.env.setting
+.env.settings
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Diagnostic/System Files
+Thumbs.db
+.cache/
+.vite/

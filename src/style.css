@@ -1,0 +1,403 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  --bg-color: #121214;       
+  --text-color: #f3f3f3;     
+  --accent: #c9a987;         
+  --card-bg: #19191d;        
+  --shadow: rgba(0, 0, 0, 0.4);
+}
+
+html, body {
+  font-family: "Helvetica Neue", Arial, sans-serif;
+  background: var(--bg-color);
+  color: var(--text-color);
+  overflow-x: hidden;
+  /* Hide the system cursor over the experience to let the beautiful ring guide shine */
+  cursor: none; 
+}
+
+/* Ensure anything clickable retains interactive capabilities */
+a, button, .modal-close, .btn-primary {
+  cursor: none !important;
+}
+
+#experience-canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 1;
+  pointer-events: auto; 
+}
+
+#app {
+  position: relative;
+  z-index: 2;
+}
+
+/* ==========================================
+   🎯 HARDWARE ACCELERATED CUSTOM POINTER GUIDES
+   ========================================== */
+.custom-cursor-ring {
+  position: fixed;
+  width: 26px;
+  height: 26px;
+  border: 1.5px solid var(--accent);
+  border-radius: 50%;
+  pointer-events: none;             /* 🛑 Critical: Stops raycast intersection blocking */
+  z-index: 999999;                  /* Sits on the absolute top layer */
+  transform: translate(-50%, -50%); /* Centers ring perfectly on mouse tip */
+  transition: width 0.25s ease, height 0.25s ease, background-color 0.25s ease, border-color 0.25s ease;
+}
+
+.custom-cursor-dot {
+  position: fixed;
+  width: 5px;
+  height: 5px;
+  background-color: var(--accent);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 999999;
+  transform: translate(-50%, -50%);
+  transition: background-color 0.25s ease, transform 0.25s ease;
+}
+
+/* 🔥 HOVERING MATCH STATE ACTIVE EFFECT */
+.custom-cursor-ring.hovering {
+  width: 44px;
+  height: 44px;
+  background-color: rgba(0, 255, 255, 0.08); /* Cyberpunk cyan backdrop hue */
+  border-color: #00ffff;                       /* Changes color to neon cyan */
+}
+
+.custom-cursor-dot.hovering {
+  background-color: #00ffff;
+  transform: translate(-50%, -50%) scale(1.5); /* Pops inner tracking dot slightly */
+}
+
+/* Loader */
+.loader-overlay {
+  position: fixed;
+  inset: 0;
+  background: var(--bg-color); 
+  z-index: 99999;              
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  transition: opacity 0.8s cubic-bezier(0.25, 1, 0.5, 1), transform 0.8s ease;
+}
+
+.loader-overlay.hidden { 
+  opacity: 0; 
+  pointer-events: none; 
+}
+
+.loader-text { 
+  font-size: 0.95rem; 
+  letter-spacing: 0.15em; 
+  text-transform: uppercase; 
+  color: #ffffff;
+  min-width: 340px;            
+  text-align: center;
+  font-family: monospace;
+}
+
+.loader-track { 
+  width: 240px; 
+  height: 3px; 
+  background: rgba(255, 255, 255, 0.08); 
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.loader-bar { 
+  width: 0%; 
+  height: 100%; 
+  background: var(--accent); 
+  transition: width 0.3s cubic-bezier(0.1, 0.8, 0.25, 1); 
+}
+
+/* Navbar */
+.navbar {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.5rem 3rem;
+  z-index: 50;
+  mix-blend-mode: difference;
+  color: #fff;
+}
+.logo { font-size: 1.4rem; font-weight: 700; letter-spacing: 0.05em; }
+
+.nav-links {
+  display: flex;
+  gap: 2rem;
+  list-style: none;
+}
+.nav-links a {
+  color: inherit;
+  text-decoration: none;
+  font-size: 0.9rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  position: relative;
+  padding-bottom: 4px;
+}
+.nav-links a.active::after,
+.nav-links a:hover::after {
+  content: "";
+  position: absolute;
+  left: 0; bottom: 0;
+  width: 100%;
+  height: 1px;
+  background: currentColor;
+}
+
+.burger {
+  display: none;
+  flex-direction: column;
+  gap: 5px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  z-index: 60;
+}
+.burger span {
+  width: 26px;
+  height: 2px;
+  background: #fff;
+  transition: all 0.3s ease;
+}
+.burger.active span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+.burger.active span:nth-child(2) { opacity: 0; }
+.burger.active span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+/* Sections */
+.section {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6rem 2rem;
+  position: relative;
+}
+
+.section-inner {
+  max-width: 900px;
+  width: 100%;
+  background: var(--card-bg);
+  border-radius: 16px;
+  padding: 3rem;
+  box-shadow: 0 20px 60px var(--shadow);
+}
+
+.section-title {
+  font-size: 2.2rem;
+  margin-bottom: 1.5rem;
+  font-weight: 700;
+}
+
+.section-text {
+  font-size: 1.05rem;
+  line-height: 1.7;
+  color: #cccccc;
+}
+
+/* Hero */
+.hero-section { text-align: center; }
+.hero-title {
+  font-size: clamp(3rem, 10vw, 7rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+.hero-subtitle {
+  font-size: clamp(1.2rem, 3vw, 1.8rem);
+  margin: 0.5rem 0 1rem;
+  font-weight: 400;
+  color: #dddddd;
+}
+.hero-text {
+  max-width: 500px;
+  margin: 0 auto 2rem;
+  color: #b0b0b0;
+}
+
+.btn-primary {
+  display: inline-block;
+  padding: 0.9rem 2.2rem;
+  background: var(--accent);
+  color: #1a1a1a;
+  text-decoration: none;
+  border-radius: 999px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+.btn-primary:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 25px rgba(201, 169, 135, 0.5);
+}
+
+/* Skills */
+.skills-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+}
+.skill-card { padding: 1rem 0; }
+.skill-name { margin-bottom: 0.5rem; font-weight: 600; }
+.skill-bar-track {
+  height: 8px;
+  background: #252529;
+  border-radius: 4px;
+  overflow: hidden;
+}
+.skill-bar-fill {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 4px;
+  transition: width 1.2s ease;
+}
+
+/* Timeline */
+.timeline { display: flex; flex-direction: column; gap: 2rem; }
+.timeline-item { display: flex; gap: 1.5rem; align-items: flex-start; }
+.timeline-dot {
+  width: 14px; height: 14px;
+  background: var(--accent);
+  border-radius: 50%;
+  margin-top: 6px;
+  flex-shrink: 0;
+}
+.timeline-content h3 { margin-bottom: 0.25rem; }
+.timeline-meta { font-size: 0.85rem; color: #888888; display: block; margin-bottom: 0.5rem; }
+
+/* Contact */
+.social-list {
+  display: flex;
+  gap: 1.5rem;
+  list-style: none;
+  margin-top: 2rem;
+}
+.social-list a {
+  color: var(--text-color);
+  text-decoration: none;
+  font-weight: 600;
+  border-bottom: 2px solid var(--accent);
+  padding-bottom: 2px;
+}
+
+/* ==========================================
+   🎯 INTERACTIVE CINEMATIC MODAL STYLING
+   ========================================== */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(10, 10, 12, 0.85); 
+  backdrop-filter: blur(10px);               
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;                             
+  transition: opacity 0.3s ease;
+}
+
+.modal-card {
+  position: relative;
+  background: #19191d;                       
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 3rem;
+  border-radius: 20px;
+  width: 90%;
+  max-width: 600px;
+  box-shadow: 0 30px 70px rgba(0, 0, 0, 0.6);
+  color: #f3f3f3;
+}
+
+.modal-close {
+  position: absolute;
+  top: 1.2rem;
+  right: 1.8rem;
+  background: none;
+  border: none;
+  color: #888;
+  font-size: 2.2rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: color 0.2s ease, transform 0.2s ease;
+}
+.modal-close:hover {
+  color: #ff5e5e;
+  transform: scale(1.1);
+}
+
+.modal-title {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 1.2rem;
+  color: var(--accent);                      
+  letter-spacing: -0.01em;
+}
+
+.modal-text {
+  font-size: 1.05rem;
+  line-height: 1.7;
+  color: #cccccc;
+}
+
+.hidden {
+  display: none !important;
+  pointer-events: none !important;
+}
+
+/* ===== Responsive ===== */
+
+/* Tablet */
+@media (max-width: 1024px) {
+  .section-inner { padding: 2rem; }
+  .skills-grid { grid-template-columns: 1fr; }
+  .navbar { padding: 1.2rem 2rem; }
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  .burger { display: flex; }
+
+  .nav-links {
+    position: fixed;
+    top: 0; right: -100%;
+    width: 70%;
+    height: 100vh;
+    background: rgba(20, 20, 20, 0.95);
+    color: #fff;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 2.5rem;
+    transition: right 0.4s ease;
+    mix-blend-mode: normal;
+  }
+  .nav-links.open { right: 0; }
+  .nav-links a { color: #fff; }
+
+  .section { padding: 4rem 1rem; }
+  .section-inner { padding: 1.5rem; border-radius: 12px; }
+  .section-title { font-size: 1.6rem; }
+
+  .hero-title { font-size: clamp(2.5rem, 14vw, 4rem); }
+  
+  .modal-card { padding: 2rem 1.5rem; }
+}
